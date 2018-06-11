@@ -22,10 +22,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +38,20 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
 
     private static final int EARTHQUAKE_LOADER_ID = 1;
 
+    private TextView mEmptyStateTextView;
+
     @Override
     public Loader<List<Earthquake>> onCreateLoader(int i, Bundle bundle) {
+        Log.i(LOG_TAG, "TEST: Earthquake Activity onCreateLoader() called");
         return new EarthquakeLoader(this, USGS_REQUEST_URL);
     }
 
     @Override
     public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
+        Log.i(LOG_TAG, "TEST: Earthquake Activity onLoadFinished() called");
+
+        mEmptyStateTextView.setText(R.string.no_earthquakes);
+
         mAdapter.clear();
 
         if (earthquakes != null && !earthquakes.isEmpty()){
@@ -52,18 +61,21 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public void onLoaderReset(Loader<List<Earthquake>> loader) {
+        Log.i(LOG_TAG, "TEST: Earthquake Activity onCreateReset() called");
         mAdapter.clear();
     }
 
     /** URL for earthquake data from the USGS dataset */
     private static final String USGS_REQUEST_URL =
-            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&minmag=3&limit=10";
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&minmag=3.5&limit=30";
 
     /** Adapter for the list of earthquakes */
     private ShakeAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(LOG_TAG, "TEST: Earthquake Activity onCreate() called");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
 
@@ -94,5 +106,8 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
         LoaderManager loaderManager = getLoaderManager();
 
         loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
+
+        mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
+        earthquakeListView.setEmptyView(mEmptyStateTextView);
     }
 }
